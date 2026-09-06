@@ -1,5 +1,6 @@
 document.addEventListener('DOMContentLoaded', () => {
     loadSavedCharacter();
+    loadSavedPlayerName();
 
     const btnPlay = document.getElementById('btn-play');
     const btnLeaderboard = document.getElementById('btn-leaderboard');
@@ -51,6 +52,13 @@ function loadSavedCharacter() {
     const saved = localStorage.getItem('gameOfLeo_character');
     if (saved) {
         GAME_STATE.currentCharacter = saved;
+    }
+}
+
+function loadSavedPlayerName() {
+    const saved = localStorage.getItem('gameOfLeo_playerName');
+    if (saved) {
+        GAME_STATE.playerName = saved;
     }
 }
 

@@ -103,6 +103,28 @@
     margin-bottom: 20px;
 }
 
+.weapon-btn {
+    background-color: var(--bg-light);
+    border: 2px solid #95a5a6;
+    border-radius: 8px;
+    padding: 15px;
+    cursor: pointer;
+    transition: all 0.3s ease;
+    font-size: 16px;
+    font-weight: bold;
+    color: #ecf0f1;
+}
+
+.weapon-btn:hover {
+    border-color: var(--secondary-color);
+    transform: translateY(-3px);
+    background-color: rgba(231, 76, 60, 0.1);
+}
+
+.weapon-btn:active {
+    transform: scale(0.95);
+}
+
 .weapon-card {
     background-color: var(--bg-light);
     border: 2px solid #95a5a6;

@@ -47,7 +47,7 @@ class Player extends GameObject {
         this.powers = [];
         this.isHidden = false;
         this.hideTimeout = 0;
-        this.autoShootRange = 350;
+        this.autoShootRange = 175;
         this.lastAutoShootTime = 0;
         this.autoShootCooldown = 100;
     }

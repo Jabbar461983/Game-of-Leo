@@ -274,6 +274,7 @@ class Game {
             for (let enemy of this.enemies) {
                 enemy.update(deltaTime, this.player);
             }
+            this.updateEnemyAttacks();
         }
 
         for (let powerUp of this.powerUps) {
@@ -318,6 +319,42 @@ class Game {
         }
     }
 
+    updateEnemyAttacks() {
+        for (let enemy of this.enemies) {
+            if (!enemy.active || !this.player) continue;
+
+            const dx = this.player.x - enemy.x;
+            const dy = this.player.y - enemy.y;
+            const dist = Math.sqrt(dx * dx + dy * dy);
+
+            if (dist < enemy.config.attackRange && !this.player.isHidden && enemy.canAttack()) {
+                this.createEnemyAttack(enemy);
+                enemy.lastAttackTime = 0;
+            }
+        }
+    }
+
+    createEnemyAttack(enemy) {
+        const x = enemy.x + enemy.width / 2;
+        const y = enemy.y + enemy.height / 2;
+        const dx = this.player.x - x;
+        const dy = this.player.y - y;
+        const dist = Math.sqrt(dx * dx + dy * dy);
+
+        if (dist > 0) {
+            const speed = 150;
+            const projectile = new Projectile(
+                x, y,
+                (dx / dist) * speed,
+                (dy / dist) * speed,
+                1,
+                'bolt'
+            );
+            projectile.isEnemyProjectile = true;
+            this.projectiles.push(projectile);
+        }
+    }
+
     checkCollisions() {
         for (let i = this.projectiles.length - 1; i >= 0; i--) {
             const projectile = this.projectiles[i];
@@ -357,6 +394,17 @@ class Game {
         }
         this.projectiles = this.projectiles.filter(p => p.active);
         this.enemies = this.enemies.filter(e => e.active);
+
+        for (let i = this.projectiles.length - 1; i >= 0; i--) {
+            const projectile = this.projectiles[i];
+            if (projectile.isEnemyProjectile && projectile.active && projectile.collidesWith(this.player) && !this.player.isHidden) {
+                this.player.takeDamage(projectile.damage);
+                projectile.active = false;
+                if (this.player.health <= 0) {
+                    this.endGame();
+                }
+            }
+        }
 
         for (let enemy of this.enemies) {
             if (enemy.active && enemy.collidesWith(this.player) && !this.player.isHidden) {
@@ -430,7 +478,41 @@ class Game {
         if (isBoss) {
             document.getElementById('boss-defeated').classList.remove('hidden');
             document.getElementById('level-complete').classList.add('hidden');
+        } else {
+            this.showWeaponSelection();
         }
+    }
+
+    showWeaponSelection() {
+        const weaponSelection = document.getElementById('weapon-selection');
+        const weaponGrid = document.getElementById('weapon-grid');
+        weaponSelection.classList.remove('hidden');
+        weaponGrid.innerHTML = '';
+
+        const weapons = ['bolt', 'coin', 'sword'];
+        weapons.forEach(weapon => {
+            const btn = document.createElement('button');
+            btn.className = 'weapon-btn';
+            btn.textContent = `${this.getWeaponName(weapon)}`;
+            btn.onclick = () => this.selectWeapon(weapon);
+            weaponGrid.appendChild(btn);
+        });
+    }
+
+    getWeaponName(weaponType) {
+        const names = {
+            'bolt': '⚡ Blitz',
+            'coin': '💰 Münze',
+            'sword': '🗡️ Schwert'
+        };
+        return names[weaponType] || weaponType;
+    }
+
+    selectWeapon(weaponType) {
+        if (!this.player.weapons.includes(weaponType)) {
+            this.player.weapons.push(weaponType);
+        }
+        document.getElementById('weapon-selection').classList.add('hidden');
     }
 
     nextLevel() {
@@ -544,6 +626,13 @@ let game = null;
 window.addEventListener('DOMContentLoaded', () => {
     const canvas = document.getElementById('gameCanvas');
     if (canvas) {
+        if (!GAME_STATE.currentCharacter) {
+            GAME_STATE.currentCharacter = localStorage.getItem('gameOfLeo_character') || 'wizard';
+        }
+        if (!GAME_STATE.playerName || GAME_STATE.playerName === 'Spieler') {
+            GAME_STATE.playerName = localStorage.getItem('gameOfLeo_playerName') || 'Spieler';
+        }
+
         game = new Game(canvas);
         game.start();
 
