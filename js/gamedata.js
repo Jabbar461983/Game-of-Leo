@@ -22,7 +22,7 @@ const GAME_CONFIG = {
             weaponName: 'Zauberstab',
             fireRate: 400,
             damage: 5,
-            speed: 4,
+            speed: 3,
             description: 'Schiesst magische Blitze'
         },
         princess: {
@@ -32,7 +32,7 @@ const GAME_CONFIG = {
             weaponName: 'Münzen',
             fireRate: 450,
             damage: 6,
-            speed: 4.5,
+            speed: 3.2,
             description: 'Schiesst explodierende Münzen'
         },
         knight: {
@@ -42,7 +42,7 @@ const GAME_CONFIG = {
             weaponName: 'Schwert',
             fireRate: 300,
             damage: 7,
-            speed: 4.5,
+            speed: 3.1,
             description: 'Kämpft mit Schwert und Schild'
         }
     }

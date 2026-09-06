@@ -203,20 +203,12 @@ class Game {
     }
 
     updateAutoShoot() {
-        if (!this.player || this.player.health <= 0) return;
+        if (!this.player || this.player.health <= 0 || this.player.isHidden) return;
 
         let closestEnemy = null;
         let closestDistance = this.player.autoShootRange;
 
-        if (this.isBossLevel && this.boss && this.boss.active) {
-            const dx = this.boss.x - this.player.x;
-            const dy = this.boss.y - this.player.y;
-            const distance = Math.sqrt(dx * dx + dy * dy);
-            if (distance < closestDistance) {
-                closestEnemy = this.boss;
-                closestDistance = distance;
-            }
-        } else {
+        if (!this.isBossLevel) {
             for (let enemy of this.enemies) {
                 if (enemy.active) {
                     const dx = enemy.x - this.player.x;
@@ -227,6 +219,14 @@ class Game {
                         closestDistance = distance;
                     }
                 }
+            }
+        } else if (this.isBossLevel && this.boss && this.boss.active) {
+            const dx = this.boss.x - this.player.x;
+            const dy = this.boss.y - this.player.y;
+            const distance = Math.sqrt(dx * dx + dy * dy);
+            if (distance < closestDistance) {
+                closestEnemy = this.boss;
+                closestDistance = distance;
             }
         }
 
@@ -359,7 +359,7 @@ class Game {
         this.enemies = this.enemies.filter(e => e.active);
 
         for (let enemy of this.enemies) {
-            if (enemy.active && enemy.collidesWith(this.player)) {
+            if (enemy.active && enemy.collidesWith(this.player) && !this.player.isHidden) {
                 if (enemy.canAttack()) {
                     this.player.takeDamage(enemy.damage);
                     enemy.lastAttackTime = 0;
@@ -370,7 +370,7 @@ class Game {
             }
         }
 
-        if (this.isBossLevel && this.boss && this.boss.active && this.boss.collidesWith(this.player)) {
+        if (this.isBossLevel && this.boss && this.boss.active && this.boss.collidesWith(this.player) && !this.player.isHidden) {
             if (this.boss.canAttack()) {
                 this.player.takeDamage(this.boss.damage);
                 this.boss.lastAttackTime = 0;

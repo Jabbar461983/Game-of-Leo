@@ -168,7 +168,7 @@ class Enemy extends GameObject {
     }
 
     moveToward(target, deltaTime) {
-        if (!target) return;
+        if (!target || target.isHidden) return;
 
         const dx = target.x + target.width / 2 - (this.x + this.width / 2);
         const dy = target.y + target.height / 2 - (this.y + this.height / 2);
