@@ -42,6 +42,30 @@
     font-size: 14px;
 }
 
+.hud-btn {
+    background-color: var(--secondary-color);
+    color: white;
+    border: none;
+    border-radius: 8px;
+    width: 40px;
+    height: 40px;
+    font-size: 18px;
+    cursor: pointer;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    transition: all 0.3s ease;
+}
+
+.hud-btn:hover {
+    background-color: #c0392b;
+    transform: scale(1.1);
+}
+
+.hud-btn:active {
+    transform: scale(0.95);
+}
+
 .hud-item .label {
     font-weight: bold;
     color: #bdc3c7;

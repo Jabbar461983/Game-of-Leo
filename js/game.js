@@ -85,6 +85,7 @@ class Game {
         this.airDrops = [];
         this.levelComplete = false;
         this.score = 0;
+        this.airDropScheduled = false;
 
         const levelConfig = getLevelConfig(this.currentWorld, this.currentLevel);
         const worldConfig = getWorldConfig(this.currentWorld);
@@ -141,12 +142,16 @@ class Game {
     }
 
     scheduleAirDrop() {
+        if (this.airDropScheduled) return;
+        this.airDropScheduled = true;
+
         setTimeout(() => {
-            if (!this.levelComplete && !this.gameOver) {
-                const x = Math.random() * (this.width - 40) + 20;
+            if (!this.levelComplete && !this.gameOver && this.airDropScheduled) {
                 this.airDrops.push(new AirDrop(-100, 50));
+                this.airDropScheduled = false;
+                this.scheduleAirDrop();
             }
-        }, 8000 + Math.random() * 12000);
+        }, 15000 + Math.random() * 10000);
     }
 
     generateBoss(worldConfig) {
@@ -271,14 +276,6 @@ class Game {
 
         for (let airDrop of this.airDrops) {
             airDrop.update(deltaTime, this.canvas);
-            if (!airDrop.hasPlane && this.airDrops.indexOf(airDrop) === this.airDrops.length - 1) {
-                if (this.airDrops.length === 1 ||
-                    (this.airDrops[this.airDrops.length - 2].landed &&
-                     Date.now() - this.lastAirDropSchedule > 3000)) {
-                    this.scheduleAirDrop();
-                    this.lastAirDropSchedule = Date.now();
-                }
-            }
         }
 
         this.checkCollisions();
@@ -346,27 +343,23 @@ class Game {
         this.enemies = this.enemies.filter(e => e.active);
 
         for (let enemy of this.enemies) {
-            if (enemy.collidesWith(this.player)) {
+            if (enemy.active && enemy.collidesWith(this.player)) {
                 if (enemy.canAttack()) {
-                    const damaged = this.player.takeDamage(enemy.damage);
-                    if (damaged) {
-                        enemy.lastAttackTime = 0;
-                        if (this.player.health <= 0) {
-                            this.endGame();
-                        }
+                    this.player.takeDamage(enemy.damage);
+                    enemy.lastAttackTime = 0;
+                    if (this.player.health <= 0) {
+                        this.endGame();
                     }
                 }
             }
         }
 
-        if (this.isBossLevel && this.boss && this.boss.collidesWith(this.player)) {
+        if (this.isBossLevel && this.boss && this.boss.active && this.boss.collidesWith(this.player)) {
             if (this.boss.canAttack()) {
-                const damaged = this.player.takeDamage(this.boss.damage);
-                if (damaged) {
-                    this.boss.lastAttackTime = 0;
-                    if (this.player.health <= 0) {
-                        this.endGame();
-                    }
+                this.player.takeDamage(this.boss.damage);
+                this.boss.lastAttackTime = 0;
+                if (this.player.health <= 0) {
+                    this.endGame();
                 }
             }
         }

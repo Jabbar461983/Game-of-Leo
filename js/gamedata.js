@@ -20,9 +20,9 @@ const GAME_CONFIG = {
             icon: '🧙‍♂️',
             weaponType: 'bolt',
             weaponName: 'Zauberstab',
-            fireRate: 300,
+            fireRate: 400,
             damage: 5,
-            speed: 5,
+            speed: 4.5,
             description: 'Schießt magische Blitze'
         },
         princess: {
@@ -30,7 +30,7 @@ const GAME_CONFIG = {
             icon: '👑',
             weaponType: 'coin',
             weaponName: 'Münzen',
-            fireRate: 400,
+            fireRate: 450,
             damage: 6,
             speed: 4.5,
             description: 'Schießt explodierende Münzen'
@@ -40,9 +40,9 @@ const GAME_CONFIG = {
             icon: '🛡️',
             weaponType: 'sword',
             weaponName: 'Schwert',
-            fireRate: 200,
+            fireRate: 300,
             damage: 7,
-            speed: 5,
+            speed: 4.5,
             description: 'Kämpft mit Schwert und Schild'
         }
     }
