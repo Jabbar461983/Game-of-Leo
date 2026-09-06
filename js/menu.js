@@ -1,4 +1,6 @@
 document.addEventListener('DOMContentLoaded', () => {
+    loadSavedCharacter();
+
     const btnPlay = document.getElementById('btn-play');
     const btnLeaderboard = document.getElementById('btn-leaderboard');
     const btnSettings = document.getElementById('btn-settings');
@@ -40,8 +42,16 @@ function selectCharacter(character) {
     GAME_STATE.currentCharacter = character;
     GAME_STATE.currentWorld = 0;
     GAME_STATE.currentLevel = 1;
+    localStorage.setItem('gameOfLeo_character', character);
 
     window.location.href = 'game.html';
+}
+
+function loadSavedCharacter() {
+    const saved = localStorage.getItem('gameOfLeo_character');
+    if (saved) {
+        GAME_STATE.currentCharacter = saved;
+    }
 }
 
 function showLeaderboard() {
@@ -76,6 +86,11 @@ function saveSettings() {
     GAME_STATE.playerName = nameInput.value || 'Spieler';
     GAME_STATE.musicEnabled = musicToggle.checked;
     GAME_STATE.sfxEnabled = sfxToggle.checked;
+
+    audio.setMusicEnabled(musicToggle.checked);
+    audio.setSfxEnabled(sfxToggle.checked);
+
+    localStorage.setItem('gameOfLeo_playerName', GAME_STATE.playerName);
 
     closeSettings();
 }

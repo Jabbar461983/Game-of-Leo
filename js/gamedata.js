@@ -22,8 +22,8 @@ const GAME_CONFIG = {
             weaponName: 'Zauberstab',
             fireRate: 400,
             damage: 5,
-            speed: 4.5,
-            description: 'Schießt magische Blitze'
+            speed: 4,
+            description: 'Schiesst magische Blitze'
         },
         princess: {
             name: 'Prinzessin',
@@ -33,7 +33,7 @@ const GAME_CONFIG = {
             fireRate: 450,
             damage: 6,
             speed: 4.5,
-            description: 'Schießt explodierende Münzen'
+            description: 'Schiesst explodierende Münzen'
         },
         knight: {
             name: 'Schwertkämpfer',
@@ -126,12 +126,12 @@ const LEVEL_CONFIG = [
 const POWERS = {
     poison: { name: 'Giftschuss', icon: '☠️', description: 'Schüsse vergiften Gegner' },
     water: { name: 'Wasserwelle', icon: '💧', description: 'Erzeugt eine Wasserwelle' },
-    fire: { name: 'Feuerball', icon: '🔥', description: 'Schießt Feuerbälle' },
-    earth: { name: 'Erdstachel', icon: '⛰️', description: 'Schießt Erdstachel' },
+    fire: { name: 'Feuerball', icon: '🔥', description: 'Schiesst Feuerbälle' },
+    earth: { name: 'Erdstachel', icon: '⛰️', description: 'Schiesst Erdstachel' },
     ice: { name: 'Gefrierung', icon: '❄️', description: 'Friert Gegner ein' },
     sand: { name: 'Sandsturm', icon: '🏜️', description: 'Erzeugt einen Sandsturm' },
     void: { name: 'Dimensionsloch', icon: '🌑', description: 'Öffnet ein Dimensionsloch' },
-    thunder: { name: 'Blitzschlag', icon: '⚡', description: 'Schießt Blitze' },
+    thunder: { name: 'Blitzschlag', icon: '⚡', description: 'Schiesst Blitze' },
     nature: { name: 'Dornenranken', icon: '🌲', description: 'Ranken greifen Gegner an' }
 };
 

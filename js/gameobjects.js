@@ -93,6 +93,10 @@ class Player extends GameObject {
         return false;
     }
 
+    resetShotTimer() {
+        this.lastShotTime = this.fireRate;
+    }
+
     hide() {
         this.isHidden = true;
         this.hideTimeout = 3000;

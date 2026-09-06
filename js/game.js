@@ -86,6 +86,8 @@ class Game {
         this.levelComplete = false;
         this.score = 0;
         this.airDropScheduled = false;
+        this.airDropCount = 0;
+        this.maxAirDropsPerLevel = 1;
 
         const levelConfig = getLevelConfig(this.currentWorld, this.currentLevel);
         const worldConfig = getWorldConfig(this.currentWorld);
@@ -142,14 +144,14 @@ class Game {
     }
 
     scheduleAirDrop() {
-        if (this.airDropScheduled) return;
+        if (this.airDropScheduled || this.airDropCount >= this.maxAirDropsPerLevel) return;
         this.airDropScheduled = true;
 
         setTimeout(() => {
-            if (!this.levelComplete && !this.gameOver && this.airDropScheduled) {
+            if (!this.levelComplete && !this.gameOver && this.airDropCount < this.maxAirDropsPerLevel) {
                 this.airDrops.push(new AirDrop(-100, 50));
+                this.airDropCount++;
                 this.airDropScheduled = false;
-                this.scheduleAirDrop();
             }
         }, 15000 + Math.random() * 10000);
     }
@@ -175,25 +177,29 @@ class Game {
     }
 
     playerShoot(targetX = null, targetY = null) {
-        if (!this.player || this.player.health <= 0) return;
+        if (!this.player || this.player.health <= 0) return false;
 
-        if (this.player.shoot()) {
-            const dx = (targetX !== null ? targetX : this.mouseX) - this.player.x;
-            const dy = (targetY !== null ? targetY : this.mouseY) - this.player.y;
-            const dist = Math.sqrt(dx * dx + dy * dy);
+        if (!this.player.canShoot()) return false;
 
-            if (dist > 0) {
-                const projectile = new Projectile(
-                    this.player.x + this.player.width / 2,
-                    this.player.y + this.player.height / 2,
-                    (dx / dist) * 350,
-                    (dy / dist) * 350,
-                    this.player.character.damage,
-                    this.player.character.weaponType
-                );
-                this.projectiles.push(projectile);
-            }
+        this.player.lastShotTime = 0;
+
+        const dx = (targetX !== null ? targetX : this.mouseX) - this.player.x;
+        const dy = (targetY !== null ? targetY : this.mouseY) - this.player.y;
+        const dist = Math.sqrt(dx * dx + dy * dy);
+
+        if (dist > 0) {
+            const projectile = new Projectile(
+                this.player.x + this.player.width / 2,
+                this.player.y + this.player.height / 2,
+                (dx / dist) * 350,
+                (dy / dist) * 350,
+                this.player.character.damage,
+                this.player.character.weaponType
+            );
+            this.projectiles.push(projectile);
+            return true;
         }
+        return false;
     }
 
     updateAutoShoot() {
@@ -313,25 +319,34 @@ class Game {
     }
 
     checkCollisions() {
-        for (let projectile of this.projectiles) {
-            if (this.isBossLevel && this.boss && projectile.collidesWith(this.boss)) {
+        for (let i = this.projectiles.length - 1; i >= 0; i--) {
+            const projectile = this.projectiles[i];
+            if (!projectile.active) continue;
+
+            if (this.isBossLevel && this.boss && this.boss.active && projectile.collidesWith(this.boss)) {
                 if (this.boss.takeDamage(projectile.damage)) {
                     this.boss.active = false;
                     this.completeLevel(true);
+                    this.score += 500;
                 }
                 projectile.active = false;
+                continue;
             }
 
-            for (let enemy of this.enemies) {
-                if (projectile.collidesWith(enemy)) {
+            let hitEnemy = false;
+            for (let j = this.enemies.length - 1; j >= 0; j--) {
+                const enemy = this.enemies[j];
+                if (enemy.active && projectile.collidesWith(enemy)) {
                     if (enemy.takeDamage(projectile.damage)) {
                         this.score += ENEMY_TYPES[enemy.type].points;
                         enemy.active = false;
                     }
                     projectile.active = false;
+                    hitEnemy = true;
                     break;
                 }
             }
+            if (hitEnemy) continue;
 
             for (let obstacle of this.obstacles) {
                 if (projectile.collidesWith(obstacle)) {
@@ -340,6 +355,7 @@ class Game {
                 }
             }
         }
+        this.projectiles = this.projectiles.filter(p => p.active);
         this.enemies = this.enemies.filter(e => e.active);
 
         for (let enemy of this.enemies) {
