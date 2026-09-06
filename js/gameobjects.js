@@ -71,20 +71,32 @@ class Player extends GameObject {
         this.x = Math.max(0, Math.min(this.x, canvas.width - this.width));
         this.y = Math.max(0, Math.min(this.y, canvas.height - this.height));
 
+        let inObstacle = false;
         for (let obstacle of obstacles) {
             if (this.collidesWith(obstacle)) {
                 this.x -= this.velocityX * deltaTime;
                 this.y -= this.velocityY * deltaTime;
+                if (obstacle.type === 'bush') {
+                    inObstacle = true;
+                }
             }
+        }
+
+        if (inObstacle && !this.isHidden) {
+            this.isHidden = true;
+            this.hideTimeout = 999999;
+        } else if (!inObstacle && this.hideTimeout === 999999) {
+            this.isHidden = false;
+            this.hideTimeout = 0;
         }
 
         const deltaMs = deltaTime * 1000;
         this.lastShotTime += deltaMs;
         this.lastAutoShootTime += deltaMs;
 
-        if (this.hideTimeout > 0) {
+        if (this.hideTimeout > 0 && this.hideTimeout !== 999999) {
             this.hideTimeout -= deltaMs;
-        } else {
+        } else if (this.hideTimeout <= 0 && this.hideTimeout !== 999999) {
             this.isHidden = false;
         }
     }
@@ -167,7 +179,7 @@ class Enemy extends GameObject {
         this.maxHealth = config.health;
         this.speed = config.speed;
         this.damage = config.damage;
-        this.lastAttackTime = 0;
+        this.lastAttackTime = config.attackCooldown;
         this.attackCooldown = config.attackCooldown;
         this.target = null;
         this.knockbackX = 0;
@@ -530,6 +542,7 @@ class Boss extends Enemy {
         this.isBoss = true;
         this.damage = 5;
         this.attackCooldown = 500;
+        this.lastAttackTime = 500;
         this.hitBlink = 0;
     }
 

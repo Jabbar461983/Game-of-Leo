@@ -365,7 +365,7 @@ class Game {
     checkCollisions() {
         for (let i = this.projectiles.length - 1; i >= 0; i--) {
             const projectile = this.projectiles[i];
-            if (!projectile.active) continue;
+            if (!projectile.active || projectile.isEnemyProjectile) continue;
 
             if (this.isBossLevel && this.boss && this.boss.active && projectile.collidesWith(this.boss)) {
                 if (this.boss.takeDamage(projectile.damage)) {
@@ -513,7 +513,11 @@ class Game {
             const btn = document.createElement('button');
             btn.className = 'weapon-btn';
             btn.textContent = `${this.getWeaponName(weapon)}`;
-            btn.onclick = () => this.selectWeapon(weapon);
+            btn.setAttribute('data-weapon', weapon);
+            btn.addEventListener('click', (e) => {
+                e.preventDefault();
+                this.selectWeapon(weapon);
+            });
             weaponGrid.appendChild(btn);
         });
     }
