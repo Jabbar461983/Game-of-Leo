@@ -11,6 +11,7 @@ class Game {
         this.powerUps = [];
         this.obstacles = [];
         this.airDrops = [];
+        this.portal = null;
 
         this.currentWorld = 0;
         this.currentLevel = 1;
@@ -83,6 +84,7 @@ class Game {
         this.powerUps = [];
         this.obstacles = [];
         this.airDrops = [];
+        this.portal = null;
         this.levelComplete = false;
         this.score = 0;
         this.airDropScheduled = false;
@@ -188,13 +190,14 @@ class Game {
         const dist = Math.sqrt(dx * dx + dy * dy);
 
         if (dist > 0) {
+            const currentWeapon = this.player.weapons[this.player.currentWeapon] || this.player.character.weaponType;
             const projectile = new Projectile(
                 this.player.x + this.player.width / 2,
                 this.player.y + this.player.height / 2,
                 (dx / dist) * 350,
                 (dy / dist) * 350,
                 this.player.character.damage,
-                this.player.character.weaponType
+                currentWeapon
             );
             this.projectiles.push(projectile);
             return true;
@@ -259,7 +262,7 @@ class Game {
         if (this.isPaused || this.levelComplete || this.gameOver) return;
 
         this.handlePlayerInput();
-        this.player.update(deltaTime, this.canvas);
+        this.player.update(deltaTime, this.canvas, this.obstacles);
         this.updateAutoShoot();
 
         for (let projectile of this.projectiles) {
@@ -268,11 +271,11 @@ class Game {
         this.projectiles = this.projectiles.filter(p => p.active);
 
         if (this.isBossLevel && this.boss) {
-            this.boss.update(deltaTime, this.player);
+            this.boss.update(deltaTime, this.player, this.obstacles);
             this.updateBossAttack();
         } else {
             for (let enemy of this.enemies) {
-                enemy.update(deltaTime, this.player);
+                enemy.update(deltaTime, this.player, this.obstacles);
             }
             this.updateEnemyAttacks();
         }
@@ -283,6 +286,10 @@ class Game {
 
         for (let airDrop of this.airDrops) {
             airDrop.update(deltaTime, this.canvas);
+        }
+
+        if (this.portal) {
+            this.portal.update(deltaTime);
         }
 
         this.checkCollisions();
@@ -452,6 +459,10 @@ class Game {
                 }
             }
         }
+
+        if (this.portal && this.portal.collidesWith(this.player)) {
+            this.nextLevel();
+        }
     }
 
     createPowerUp(x, y) {
@@ -462,13 +473,21 @@ class Game {
         const enemiesLeft = this.enemies.filter(e => e.active).length;
         const bossAlive = this.isBossLevel && this.boss && this.boss.active;
 
-        if (enemiesLeft === 0 && !bossAlive) {
-            this.completeLevel(false);
+        if (enemiesLeft === 0 && !bossAlive && !this.portal && !this.levelComplete) {
+            if (this.isBossLevel) {
+                this.completeLevel(true);
+            } else {
+                this.showPortal();
+            }
         }
 
         document.getElementById('enemies-left').textContent = enemiesLeft + (bossAlive ? 1 : 0);
         document.getElementById('health').textContent = Math.ceil(this.player.health) + '/' + this.player.maxHealth;
         document.getElementById('score').textContent = this.score;
+    }
+
+    showPortal() {
+        this.portal = new Portal(this.width / 2 - 20, 100);
     }
 
     completeLevel(isBoss) {
@@ -512,6 +531,7 @@ class Game {
         if (!this.player.weapons.includes(weaponType)) {
             this.player.weapons.push(weaponType);
         }
+        this.player.currentWeapon = this.player.weapons.indexOf(weaponType);
         document.getElementById('weapon-selection').classList.add('hidden');
     }
 
@@ -575,6 +595,10 @@ class Game {
 
         for (let powerUp of this.powerUps) {
             powerUp.draw(this.ctx);
+        }
+
+        if (this.portal) {
+            this.portal.draw(this.ctx);
         }
 
         for (let enemy of this.enemies) {

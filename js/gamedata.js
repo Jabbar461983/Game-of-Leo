@@ -55,7 +55,7 @@ const ENEMY_TYPES = {
         health: 20,
         speed: 2,
         damage: 4,
-        attackRange: 250,
+        attackRange: 400,
         attackCooldown: 500,
         points: 50
     },
@@ -65,7 +65,7 @@ const ENEMY_TYPES = {
         health: 10,
         speed: 3.5,
         damage: 3,
-        attackRange: 100,
+        attackRange: 350,
         attackCooldown: 300,
         points: 30
     },
@@ -75,7 +75,7 @@ const ENEMY_TYPES = {
         health: 15,
         speed: 2.5,
         damage: 3,
-        attackRange: 200,
+        attackRange: 400,
         attackCooldown: 600,
         canPassThroughObjects: true,
         points: 40
@@ -86,7 +86,7 @@ const ENEMY_TYPES = {
         health: 30,
         speed: 1.5,
         damage: 5,
-        attackRange: 50,
+        attackRange: 300,
         attackCooldown: 800,
         points: 60
     },
@@ -96,7 +96,7 @@ const ENEMY_TYPES = {
         health: 25,
         speed: 3,
         damage: 4,
-        attackRange: 80,
+        attackRange: 350,
         attackCooldown: 700,
         points: 55
     }

@@ -62,7 +62,7 @@ class Player extends GameObject {
         }
     }
 
-    update(deltaTime, canvas) {
+    update(deltaTime, canvas, obstacles = []) {
         this.velocityX = this.direction.x * this.speed;
         this.velocityY = this.direction.y * this.speed;
 
@@ -70,6 +70,13 @@ class Player extends GameObject {
 
         this.x = Math.max(0, Math.min(this.x, canvas.width - this.width));
         this.y = Math.max(0, Math.min(this.y, canvas.height - this.height));
+
+        for (let obstacle of obstacles) {
+            if (this.collidesWith(obstacle)) {
+                this.x -= this.velocityX * deltaTime;
+                this.y -= this.velocityY * deltaTime;
+            }
+        }
 
         const deltaMs = deltaTime * 1000;
         this.lastShotTime += deltaMs;
@@ -167,8 +174,13 @@ class Enemy extends GameObject {
         this.knockbackY = 0;
     }
 
-    moveToward(target, deltaTime) {
-        if (!target || target.isHidden) return;
+    moveToward(target, deltaTime, obstacles = []) {
+        if (!target) return;
+
+        if (target.isHidden) {
+            this.moveRandomly(deltaTime);
+            return;
+        }
 
         const dx = target.x + target.width / 2 - (this.x + this.width / 2);
         const dy = target.y + target.height / 2 - (this.y + this.height / 2);
@@ -187,6 +199,17 @@ class Enemy extends GameObject {
 
         this.velocityX += this.knockbackX;
         this.velocityY += this.knockbackY;
+    }
+
+    moveRandomly(deltaTime) {
+        if (!this.randomMoveTimer || this.randomMoveTimer <= 0) {
+            const angle = Math.random() * Math.PI * 2;
+            this.velocityX = Math.cos(angle) * this.speed * deltaTime * 1000;
+            this.velocityY = Math.sin(angle) * this.speed * deltaTime * 1000;
+            this.randomMoveTimer = 2000;
+        } else {
+            this.randomMoveTimer -= deltaTime * 1000;
+        }
     }
 
     canAttack() {
@@ -208,14 +231,21 @@ class Enemy extends GameObject {
         return this.health <= 0;
     }
 
-    update(deltaTime, player) {
+    update(deltaTime, player, obstacles = []) {
         super.update(deltaTime);
         const deltaMs = deltaTime * 1000;
         this.lastAttackTime += deltaMs;
         this.hitBlink = Math.max(0, (this.hitBlink || 0) - deltaMs);
 
         if (player && player.active) {
-            this.moveToward(player, deltaTime);
+            this.moveToward(player, deltaTime, obstacles);
+        }
+
+        for (let obstacle of obstacles) {
+            if (this.collidesWith(obstacle)) {
+                this.x -= this.velocityX * deltaTime;
+                this.y -= this.velocityY * deltaTime;
+            }
         }
     }
 
@@ -438,6 +468,49 @@ class Obstacle extends GameObject {
             ctx.lineWidth = 2;
             ctx.strokeRect(this.x, this.y, this.width, this.height);
         }
+
+        ctx.restore();
+    }
+}
+
+class Portal extends GameObject {
+    constructor(x, y) {
+        super(x, y, 40, 40);
+        this.rotationAngle = 0;
+        this.pulseTime = 0;
+    }
+
+    update(deltaTime) {
+        this.rotationAngle += deltaTime * 2;
+        this.pulseTime += deltaTime;
+    }
+
+    draw(ctx) {
+        if (!this.active) return;
+
+        ctx.save();
+        ctx.translate(this.x + this.width / 2, this.y + this.height / 2);
+        ctx.rotate(this.rotationAngle);
+
+        const pulse = 1 + Math.sin(this.pulseTime * 5) * 0.2;
+        ctx.scale(pulse, pulse);
+
+        ctx.fillStyle = 'rgba(100, 200, 255, 0.6)';
+        ctx.beginPath();
+        ctx.arc(0, 0, this.width / 2, 0, Math.PI * 2);
+        ctx.fill();
+
+        ctx.strokeStyle = '#64c8ff';
+        ctx.lineWidth = 3;
+        ctx.beginPath();
+        ctx.arc(0, 0, this.width / 2, 0, Math.PI * 2);
+        ctx.stroke();
+
+        ctx.font = 'bold 24px Arial';
+        ctx.textAlign = 'center';
+        ctx.textBaseline = 'middle';
+        ctx.fillStyle = '#fff';
+        ctx.fillText('🚪', 0, 0);
 
         ctx.restore();
     }
