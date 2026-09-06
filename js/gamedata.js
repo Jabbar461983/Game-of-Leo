@@ -54,9 +54,9 @@ const ENEMY_TYPES = {
         icon: '💀',
         health: 20,
         speed: 2,
-        damage: 1,
+        damage: 4,
         attackRange: 250,
-        attackCooldown: 1000,
+        attackCooldown: 500,
         points: 50
     },
     bat: {
@@ -64,9 +64,9 @@ const ENEMY_TYPES = {
         icon: '🦇',
         health: 10,
         speed: 3.5,
-        damage: 1,
+        damage: 3,
         attackRange: 100,
-        attackCooldown: 500,
+        attackCooldown: 300,
         points: 30
     },
     ghost: {
@@ -74,9 +74,9 @@ const ENEMY_TYPES = {
         icon: '👻',
         health: 15,
         speed: 2.5,
-        damage: 1,
+        damage: 3,
         attackRange: 200,
-        attackCooldown: 800,
+        attackCooldown: 600,
         canPassThroughObjects: true,
         points: 40
     },
@@ -85,9 +85,9 @@ const ENEMY_TYPES = {
         icon: '🧟‍♂️',
         health: 30,
         speed: 1.5,
-        damage: 2,
+        damage: 5,
         attackRange: 50,
-        attackCooldown: 1500,
+        attackCooldown: 800,
         points: 60
     },
     spider: {
@@ -95,9 +95,9 @@ const ENEMY_TYPES = {
         icon: '🕷️',
         health: 25,
         speed: 3,
-        damage: 2,
+        damage: 4,
         attackRange: 80,
-        attackCooldown: 1000,
+        attackCooldown: 700,
         points: 55
     }
 };

@@ -455,7 +455,8 @@ class Boss extends Enemy {
         this.attackTimer = 0;
         this.speed = 1.5;
         this.isBoss = true;
-        this.attackCooldown = 800;
+        this.damage = 5;
+        this.attackCooldown = 500;
         this.hitBlink = 0;
     }
 
