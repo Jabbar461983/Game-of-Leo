@@ -23,6 +23,7 @@ class Game {
         this.touchControls = { x: this.width / 2, y: this.height / 2 };
 
         this.lastFrameTime = Date.now();
+        this.lastAirDropSchedule = Date.now();
         this.isPaused = false;
         this.levelComplete = false;
         this.gameOver = false;
@@ -143,9 +144,9 @@ class Game {
         setTimeout(() => {
             if (!this.levelComplete && !this.gameOver) {
                 const x = Math.random() * (this.width - 40) + 20;
-                this.airDrops.push(new AirDrop(x, -50));
+                this.airDrops.push(new AirDrop(-100, 50));
             }
-        }, 10000 + Math.random() * 10000);
+        }, 8000 + Math.random() * 12000);
     }
 
     generateBoss(worldConfig) {
@@ -168,25 +169,62 @@ class Game {
         }
     }
 
-    playerShoot() {
+    playerShoot(targetX = null, targetY = null) {
         if (!this.player || this.player.health <= 0) return;
 
         if (this.player.shoot()) {
-            const dx = this.mouseX - this.player.x;
-            const dy = this.mouseY - this.player.y;
+            const dx = (targetX !== null ? targetX : this.mouseX) - this.player.x;
+            const dy = (targetY !== null ? targetY : this.mouseY) - this.player.y;
             const dist = Math.sqrt(dx * dx + dy * dy);
 
             if (dist > 0) {
                 const projectile = new Projectile(
                     this.player.x + this.player.width / 2,
                     this.player.y + this.player.height / 2,
-                    (dx / dist) * 300,
-                    (dy / dist) * 300,
+                    (dx / dist) * 350,
+                    (dy / dist) * 350,
                     this.player.character.damage,
                     this.player.character.weaponType
                 );
                 this.projectiles.push(projectile);
             }
+        }
+    }
+
+    updateAutoShoot() {
+        if (!this.player || this.player.health <= 0) return;
+
+        let closestEnemy = null;
+        let closestDistance = this.player.autoShootRange;
+
+        if (this.isBossLevel && this.boss && this.boss.active) {
+            const dx = this.boss.x - this.player.x;
+            const dy = this.boss.y - this.player.y;
+            const distance = Math.sqrt(dx * dx + dy * dy);
+            if (distance < closestDistance) {
+                closestEnemy = this.boss;
+                closestDistance = distance;
+            }
+        } else {
+            for (let enemy of this.enemies) {
+                if (enemy.active) {
+                    const dx = enemy.x - this.player.x;
+                    const dy = enemy.y - this.player.y;
+                    const distance = Math.sqrt(dx * dx + dy * dy);
+                    if (distance < closestDistance) {
+                        closestEnemy = enemy;
+                        closestDistance = distance;
+                    }
+                }
+            }
+        }
+
+        if (closestEnemy && this.player.lastAutoShootTime >= this.player.autoShootCooldown) {
+            this.playerShoot(
+                closestEnemy.x + closestEnemy.width / 2,
+                closestEnemy.y + closestEnemy.height / 2
+            );
+            this.player.lastAutoShootTime = 0;
         }
     }
 
@@ -211,6 +249,7 @@ class Game {
 
         this.handlePlayerInput();
         this.player.update(deltaTime, this.canvas);
+        this.updateAutoShoot();
 
         for (let projectile of this.projectiles) {
             projectile.update(deltaTime);
@@ -232,6 +271,14 @@ class Game {
 
         for (let airDrop of this.airDrops) {
             airDrop.update(deltaTime, this.canvas);
+            if (!airDrop.hasPlane && this.airDrops.indexOf(airDrop) === this.airDrops.length - 1) {
+                if (this.airDrops.length === 1 ||
+                    (this.airDrops[this.airDrops.length - 2].landed &&
+                     Date.now() - this.lastAirDropSchedule > 3000)) {
+                    this.scheduleAirDrop();
+                    this.lastAirDropSchedule = Date.now();
+                }
+            }
         }
 
         this.checkCollisions();

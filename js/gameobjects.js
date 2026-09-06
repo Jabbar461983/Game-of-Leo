@@ -38,7 +38,7 @@ class Player extends GameObject {
         this.character = getCharacterConfig(character);
         this.health = GAME_CONFIG.maxHealth;
         this.maxHealth = GAME_CONFIG.maxHealth;
-        this.speed = this.character.speed;
+        this.speed = this.character.speed * 100;
         this.direction = { x: 0, y: 0 };
         this.lastShotTime = 0;
         this.fireRate = this.character.fireRate;
@@ -47,22 +47,32 @@ class Player extends GameObject {
         this.powers = [];
         this.isHidden = false;
         this.hideTimeout = 0;
+        this.autoShootRange = 300;
+        this.lastAutoShootTime = 0;
+        this.autoShootCooldown = 150;
     }
 
     setDirection(x, y) {
         this.direction.x = x;
         this.direction.y = y;
-        this.velocityX = this.direction.x * this.speed;
-        this.velocityY = this.direction.y * this.speed;
+        if (x !== 0 || y !== 0) {
+            const length = Math.sqrt(x * x + y * y);
+            this.direction.x = x / length;
+            this.direction.y = y / length;
+        }
     }
 
     update(deltaTime, canvas) {
+        this.velocityX = this.direction.x * this.speed;
+        this.velocityY = this.direction.y * this.speed;
+
         super.update(deltaTime, canvas);
 
         this.x = Math.max(0, Math.min(this.x, canvas.width - this.width));
         this.y = Math.max(0, Math.min(this.y, canvas.height - this.height));
 
         this.lastShotTime += deltaTime;
+        this.lastAutoShootTime += deltaTime;
 
         if (this.hideTimeout > 0) {
             this.hideTimeout -= deltaTime;
@@ -147,17 +157,20 @@ class Enemy extends GameObject {
     moveToward(target, deltaTime) {
         if (!target) return;
 
-        const dx = target.x - this.x;
-        const dy = target.y - this.y;
+        const dx = target.x + target.width / 2 - (this.x + this.width / 2);
+        const dy = target.y + target.height / 2 - (this.y + this.height / 2);
         const dist = Math.sqrt(dx * dx + dy * dy);
 
-        if (dist > 0) {
-            this.velocityX = (dx / dist) * this.speed;
-            this.velocityY = (dy / dist) * this.speed;
+        if (dist > 5) {
+            this.velocityX = (dx / dist) * this.speed * deltaTime * 1000;
+            this.velocityY = (dy / dist) * this.speed * deltaTime * 1000;
+        } else {
+            this.velocityX *= 0.9;
+            this.velocityY *= 0.9;
         }
 
-        this.knockbackX *= 0.95;
-        this.knockbackY *= 0.95;
+        this.knockbackX *= 0.92;
+        this.knockbackY *= 0.92;
 
         this.velocityX += this.knockbackX;
         this.velocityY += this.knockbackY;
@@ -312,16 +325,30 @@ class PowerUp extends GameObject {
 class AirDrop extends GameObject {
     constructor(x, y) {
         super(x, y, 40, 40);
-        this.velocityY = 100;
+        this.velocityY = 150;
+        this.velocityX = 80;
         this.landed = false;
+        this.planeX = -100;
+        this.planeY = 50;
+        this.hasPlane = true;
+        this.droppedAt = null;
     }
 
     update(deltaTime, canvas) {
-        if (!this.landed) {
+        if (this.hasPlane) {
+            this.planeX += this.velocityX * deltaTime;
+            if (this.planeX > this.x && !this.droppedAt) {
+                this.droppedAt = true;
+                this.hasPlane = false;
+            }
+            this.x = this.planeX;
+            this.y = this.planeY;
+        } else if (!this.landed) {
             super.update(deltaTime);
             if (this.y + this.height >= canvas.height - 50) {
                 this.landed = true;
                 this.velocityY = 0;
+                this.velocityX = 0;
                 this.y = canvas.height - 50 - this.height;
             }
         }
@@ -329,6 +356,13 @@ class AirDrop extends GameObject {
 
     draw(ctx) {
         ctx.save();
+
+        if (this.hasPlane) {
+            ctx.font = '28px Arial';
+            ctx.textAlign = 'center';
+            ctx.textBaseline = 'middle';
+            ctx.fillText('✈️', this.x, this.y - 20);
+        }
 
         ctx.fillStyle = '#34495e';
         ctx.fillRect(this.x, this.y, this.width, this.height);
