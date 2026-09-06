@@ -503,7 +503,19 @@ class Game {
             this.boss.draw(this.ctx);
         }
 
-        this.player.draw(this.ctx);
+        let nearbyEnemyCount = 0;
+        for (let enemy of this.enemies) {
+            if (enemy.active) {
+                const dx = enemy.x - this.player.x;
+                const dy = enemy.y - this.player.y;
+                const dist = Math.sqrt(dx * dx + dy * dy);
+                if (dist < this.player.autoShootRange) {
+                    nearbyEnemyCount++;
+                }
+            }
+        }
+
+        this.player.draw(this.ctx, nearbyEnemyCount > 0);
 
         if (this.isPaused) {
             this.ctx.fillStyle = 'rgba(0, 0, 0, 0.5)';

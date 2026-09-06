@@ -71,11 +71,12 @@ class Player extends GameObject {
         this.x = Math.max(0, Math.min(this.x, canvas.width - this.width));
         this.y = Math.max(0, Math.min(this.y, canvas.height - this.height));
 
-        this.lastShotTime += deltaTime;
-        this.lastAutoShootTime += deltaTime;
+        const deltaMs = deltaTime * 1000;
+        this.lastShotTime += deltaMs;
+        this.lastAutoShootTime += deltaMs;
 
         if (this.hideTimeout > 0) {
-            this.hideTimeout -= deltaTime;
+            this.hideTimeout -= deltaMs;
         } else {
             this.isHidden = false;
         }
@@ -114,7 +115,7 @@ class Player extends GameObject {
         this.health = Math.min(this.health + amount, this.maxHealth);
     }
 
-    draw(ctx) {
+    draw(ctx, showAutoShootRange = false) {
         if (!this.active) return;
 
         ctx.save();
@@ -136,6 +137,14 @@ class Player extends GameObject {
         ctx.textAlign = 'center';
         ctx.textBaseline = 'middle';
         ctx.fillText(this.character.icon, this.x + this.width / 2, this.y + this.height / 2);
+
+        if (showAutoShootRange) {
+            ctx.strokeStyle = 'rgba(100, 200, 100, 0.3)';
+            ctx.lineWidth = 2;
+            ctx.beginPath();
+            ctx.arc(this.x + this.width / 2, this.y + this.height / 2, this.autoShootRange, 0, Math.PI * 2);
+            ctx.stroke();
+        }
 
         ctx.restore();
     }
@@ -195,12 +204,15 @@ class Enemy extends GameObject {
     takeDamage(amount) {
         this.health -= amount;
         this.knockbackX -= amount * 0.5;
+        this.hitBlink = 150;
         return this.health <= 0;
     }
 
     update(deltaTime, player) {
         super.update(deltaTime);
-        this.lastAttackTime += deltaTime;
+        const deltaMs = deltaTime * 1000;
+        this.lastAttackTime += deltaMs;
+        this.hitBlink = Math.max(0, (this.hitBlink || 0) - deltaMs);
 
         if (player && player.active) {
             this.moveToward(player, deltaTime);
@@ -211,6 +223,11 @@ class Enemy extends GameObject {
         if (!this.active) return;
 
         ctx.save();
+
+        const blinkVisible = !this.hitBlink || Math.sin(this.hitBlink * 0.02) > 0;
+        if (!blinkVisible) {
+            ctx.globalAlpha = 0.3;
+        }
 
         ctx.fillStyle = '#e74c3c';
         ctx.fillRect(this.x, this.y, this.width, this.height);
@@ -223,12 +240,13 @@ class Enemy extends GameObject {
         ctx.textBaseline = 'middle';
         ctx.fillText(this.config.icon, this.x + this.width / 2, this.y + this.height / 2);
 
-        const healthPercent = this.health / this.maxHealth;
+        ctx.globalAlpha = 1;
+        const healthPercent = Math.max(0, this.health / this.maxHealth);
         ctx.fillStyle = healthPercent > 0.5 ? '#27ae60' : (healthPercent > 0.25 ? '#f39c12' : '#e74c3c');
-        ctx.fillRect(this.x, this.y - 8, this.width * healthPercent, 5);
+        ctx.fillRect(this.x, this.y - 10, this.width * healthPercent, 6);
         ctx.strokeStyle = '#333';
-        ctx.lineWidth = 1;
-        ctx.strokeRect(this.x, this.y - 8, this.width, 5);
+        ctx.lineWidth = 2;
+        ctx.strokeRect(this.x, this.y - 10, this.width, 6);
 
         ctx.restore();
     }
@@ -236,7 +254,7 @@ class Enemy extends GameObject {
 
 class Projectile extends GameObject {
     constructor(x, y, velocityX, velocityY, damage, type = 'bolt') {
-        super(x, y, 8, 8);
+        super(x, y, 12, 12);
         this.velocityX = velocityX;
         this.velocityY = velocityY;
         this.damage = damage;
@@ -247,7 +265,7 @@ class Projectile extends GameObject {
 
     update(deltaTime) {
         super.update(deltaTime);
-        this.aliveTime += deltaTime;
+        this.aliveTime += deltaTime * 1000;
 
         if (this.aliveTime >= this.lifeTime) {
             this.active = false;
@@ -259,26 +277,38 @@ class Projectile extends GameObject {
 
         ctx.save();
 
-        const speed = Math.sqrt(this.velocityX * this.velocityX + this.velocityY * this.velocityY);
         const angle = Math.atan2(this.velocityY, this.velocityX);
 
-        ctx.translate(this.x, this.y);
+        ctx.translate(this.x + this.width / 2, this.y + this.height / 2);
         ctx.rotate(angle);
 
         if (this.type === 'bolt') {
-            ctx.fillStyle = '#f1c40f';
-            ctx.fillRect(0, -this.height / 2, this.width * 2, this.height);
+            ctx.fillStyle = '#ffed4e';
+            ctx.fillRect(-8, -6, 16, 12);
+            ctx.strokeStyle = '#f39c12';
+            ctx.lineWidth = 2;
+            ctx.strokeRect(-8, -6, 16, 12);
+            ctx.fillStyle = '#fff';
+            ctx.fillRect(-5, -3, 10, 6);
         } else if (this.type === 'coin') {
             ctx.fillStyle = '#f39c12';
             ctx.beginPath();
-            ctx.arc(0, 0, this.width, 0, Math.PI * 2);
+            ctx.arc(0, 0, this.width + 2, 0, Math.PI * 2);
             ctx.fill();
             ctx.strokeStyle = '#e67e22';
-            ctx.lineWidth = 1;
+            ctx.lineWidth = 2;
             ctx.stroke();
+            ctx.fillStyle = '#fff';
+            ctx.font = '14px Arial';
+            ctx.textAlign = 'center';
+            ctx.textBaseline = 'middle';
+            ctx.fillText('💰', 0, 0);
         } else if (this.type === 'sword') {
             ctx.fillStyle = '#95a5a6';
-            ctx.fillRect(0, -this.height / 2, this.width * 3, this.height);
+            ctx.fillRect(-10, -4, 20, 8);
+            ctx.strokeStyle = '#7f8c8d';
+            ctx.lineWidth = 2;
+            ctx.strokeRect(-10, -4, 20, 8);
         }
 
         ctx.restore();
@@ -419,12 +449,14 @@ class Boss extends Enemy {
         this.width = 60;
         this.height = 60;
         this.worldConfig = worldConfig;
-        this.health = 150;
-        this.maxHealth = 150;
+        this.health = 200;
+        this.maxHealth = 200;
         this.attackPattern = 0;
         this.attackTimer = 0;
         this.speed = 1.5;
         this.isBoss = true;
+        this.attackCooldown = 800;
+        this.hitBlink = 0;
     }
 
     getAttackPattern() {
@@ -445,6 +477,11 @@ class Boss extends Enemy {
 
         ctx.save();
 
+        const blinkVisible = !this.hitBlink || Math.sin(this.hitBlink * 0.02) > 0;
+        if (!blinkVisible) {
+            ctx.globalAlpha = 0.3;
+        }
+
         ctx.fillStyle = this.worldConfig.color;
         ctx.fillRect(this.x, this.y, this.width, this.height);
         ctx.strokeStyle = '#000';
@@ -456,8 +493,9 @@ class Boss extends Enemy {
         ctx.textBaseline = 'middle';
         ctx.fillText('👹', this.x + this.width / 2, this.y + this.height / 2);
 
-        const healthPercent = this.health / this.maxHealth;
-        ctx.fillStyle = '#e74c3c';
+        ctx.globalAlpha = 1;
+        const healthPercent = Math.max(0, this.health / this.maxHealth);
+        ctx.fillStyle = healthPercent > 0.5 ? '#27ae60' : (healthPercent > 0.25 ? '#f39c12' : '#e74c3c');
         ctx.fillRect(this.x, this.y - 15, this.width * healthPercent, 10);
         ctx.strokeStyle = '#000';
         ctx.lineWidth = 2;
