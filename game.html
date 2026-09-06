@@ -1,0 +1,94 @@
+<!DOCTYPE html>
+<html lang="de">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Game of Leo - Spielen</title>
+    <link rel="stylesheet" href="css/style.css">
+    <link rel="stylesheet" href="css/game.css">
+</head>
+<body>
+    <div class="game-container">
+        <div class="hud">
+            <div class="hud-left">
+                <div class="hud-item">
+                    <span class="label">❤️ Leben:</span>
+                    <span id="health" class="value">100/100</span>
+                </div>
+                <div class="hud-item">
+                    <span class="label">🌍 Welt:</span>
+                    <span id="world" class="value">1</span>
+                </div>
+                <div class="hud-item">
+                    <span class="label">📍 Level:</span>
+                    <span id="level" class="value">1</span>
+                </div>
+            </div>
+            <div class="hud-center">
+                <h2 id="level-title">Welt 1 - Level 1</h2>
+            </div>
+            <div class="hud-right">
+                <div class="hud-item">
+                    <span class="label">👾 Gegner:</span>
+                    <span id="enemies-left" class="value">0</span>
+                </div>
+                <div class="hud-item">
+                    <span class="label">⭐ Punkte:</span>
+                    <span id="score" class="value">0</span>
+                </div>
+            </div>
+        </div>
+
+        <canvas id="gameCanvas" width="1024" height="768"></canvas>
+
+        <div id="pause-menu" class="modal hidden">
+            <div class="modal-content">
+                <h2>PAUSIERT</h2>
+                <div class="menu-buttons">
+                    <button class="menu-btn" onclick="game.resume()">FORTSETZEN</button>
+                    <button class="menu-btn btn-secondary" onclick="goToMenu()">ZURÜCK ZUM MENÜ</button>
+                </div>
+            </div>
+        </div>
+
+        <div id="level-complete" class="modal hidden">
+            <div class="modal-content">
+                <h2>✨ Level Abgeschlossen! ✨</h2>
+                <p id="level-complete-text">Großartig!</p>
+                <div id="weapon-selection" class="weapon-selection hidden">
+                    <h3>Wähle eine neue Waffe:</h3>
+                    <div id="weapon-grid" class="weapon-grid">
+                        <!-- Waffen werden hier eingefügt -->
+                    </div>
+                </div>
+                <button class="menu-btn" onclick="game.nextLevel()">NÄCHSTES LEVEL</button>
+            </div>
+        </div>
+
+        <div id="boss-defeated" class="modal hidden">
+            <div class="modal-content">
+                <h2>🏆 BOSS BESIEGT! 🏆</h2>
+                <p id="boss-power-text">Du erhältst eine neue Superkraft!</p>
+                <button class="menu-btn" onclick="game.nextLevel()">WEITER</button>
+            </div>
+        </div>
+
+        <div id="game-over" class="modal hidden">
+            <div class="modal-content">
+                <h2>💀 GAME OVER 💀</h2>
+                <p id="game-over-text">Du bist besiegt worden!</p>
+                <p class="score-text">Erreichte Level: <span id="final-level">0</span></p>
+                <div class="menu-buttons">
+                    <button class="menu-btn" onclick="game.restart()">NEUER VERSUCH</button>
+                    <button class="menu-btn btn-secondary" onclick="goToMenu()">MENÜ</button>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <script src="js/gamedata.js"></script>
+    <script src="js/gameobjects.js"></script>
+    <script src="js/game.js"></script>
+    <script src="js/leaderboard.js"></script>
+</body>
+</html>

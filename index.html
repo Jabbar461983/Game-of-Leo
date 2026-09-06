@@ -1,0 +1,97 @@
+<!DOCTYPE html>
+<html lang="de">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Game of Leo - Menu</title>
+    <link rel="stylesheet" href="css/style.css">
+    <link rel="stylesheet" href="css/menu.css">
+</head>
+<body>
+    <div id="main-menu" class="menu-screen">
+        <div class="menu-container">
+            <h1 class="game-title">⚔️ Game of Leo ⚔️</h1>
+            <p class="tagline">Besiege alle Gegner und rette dein Reich!</p>
+
+            <div class="menu-buttons">
+                <button id="btn-play" class="menu-btn btn-play">SPIELEN</button>
+                <button id="btn-leaderboard" class="menu-btn btn-secondary">RANGLISTE</button>
+                <button id="btn-settings" class="menu-btn btn-secondary">EINSTELLUNGEN</button>
+            </div>
+        </div>
+    </div>
+
+    <div id="character-select" class="modal hidden">
+        <div class="modal-content">
+            <h2>Wähle deinen Charakter</h2>
+            <div class="character-grid">
+                <div class="character-card" data-character="wizard">
+                    <div class="character-icon">🧙‍♂️</div>
+                    <h3>Magier</h3>
+                    <p>Schießt mit dem Zauberstab</p>
+                    <button class="select-btn">Wählen</button>
+                </div>
+                <div class="character-card" data-character="princess">
+                    <div class="character-icon">👑</div>
+                    <h3>Prinzessin</h3>
+                    <p>Schießt explodierende Münzen</p>
+                    <button class="select-btn">Wählen</button>
+                </div>
+                <div class="character-card" data-character="knight">
+                    <div class="character-icon">🛡️</div>
+                    <h3>Schwertkämpfer</h3>
+                    <p>Kämpft mit Schwert und Schild</p>
+                    <button class="select-btn">Wählen</button>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <div id="leaderboard-modal" class="modal hidden">
+        <div class="modal-content modal-large">
+            <h2>Rangliste</h2>
+            <button class="close-btn" onclick="closeLeaderboard()">✕</button>
+            <div id="leaderboard-table" class="leaderboard-table">
+                <div class="leaderboard-header">
+                    <div class="leaderboard-rank">#</div>
+                    <div class="leaderboard-name">Name</div>
+                    <div class="leaderboard-character">Charakter</div>
+                    <div class="leaderboard-level">Level</div>
+                    <div class="leaderboard-date">Datum</div>
+                </div>
+                <div id="leaderboard-entries" class="leaderboard-entries">
+                    <!-- Einträge werden hier eingefügt -->
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <div id="settings-modal" class="modal hidden">
+        <div class="modal-content">
+            <h2>Einstellungen</h2>
+            <button class="close-btn" onclick="closeSettings()">✕</button>
+            <div class="settings-group">
+                <label for="player-name">Spielername:</label>
+                <input type="text" id="player-name" placeholder="Dein Name" maxlength="20">
+            </div>
+            <div class="settings-group">
+                <label>
+                    <input type="checkbox" id="music-toggle" checked>
+                    Musik aktiviert
+                </label>
+            </div>
+            <div class="settings-group">
+                <label>
+                    <input type="checkbox" id="sfx-toggle" checked>
+                    Sound-Effekte aktiviert
+                </label>
+            </div>
+            <button class="menu-btn" onclick="saveSettings()">Speichern</button>
+        </div>
+    </div>
+
+    <script src="js/gamedata.js"></script>
+    <script src="js/leaderboard.js"></script>
+    <script src="js/menu.js"></script>
+</body>
+</html>
