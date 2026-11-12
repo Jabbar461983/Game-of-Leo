@@ -4,6 +4,7 @@ let monsterMeshes = {};
 let minimap = null;
 let simple3dScene = null;
 let useFallbackRenderer = false;
+let fallbackUpdateInterval = null;
 
 function initializeBabylonScene() {
     const canvas = document.getElementById('renderCanvas');
@@ -17,12 +18,25 @@ function initializeBabylonScene() {
         console.warn('Babylon.js nicht verfügbar, verwende Fallback 2D-Renderer');
         useFallbackRenderer = true;
 
-        // Clear the original canvas and make sure it's fresh
+        // Initialize fallback renderer
         canvas.width = window.innerWidth;
         canvas.height = window.innerHeight;
 
         simple3dScene = new Simple3DScene('renderCanvas');
         renderFallback3DScene();
+
+        // START UPDATE LOOP FOR FALLBACK RENDERER
+        console.log('Starting fallback update loop...');
+        if (fallbackUpdateInterval) clearInterval(fallbackUpdateInterval);
+
+        fallbackUpdateInterval = setInterval(() => {
+            if (gameState.gameActive && !gameState.gamePaused) {
+                updateGame();
+                updateMinimap();
+            }
+        }, 16); // ~60 FPS
+
+        console.log('✓ Fallback update loop started');
         return;
     }
 
@@ -226,8 +240,10 @@ function updateGame() {
         });
     }
 
-    // Update HUD
-    uiManager.updateHUD();
+    // Update HUD - CRITICAL: This updates the world name and other HUD elements
+    if (typeof uiManager !== 'undefined' && uiManager.updateHUD) {
+        uiManager.updateHUD();
+    }
 
     // Überprüfe Kampfende
     checkGameEnd();
@@ -292,12 +308,16 @@ function checkGameEnd() {
             ? '🎉 Du hast gewonnen!'
             : '💀 Du bist eliminiert!';
 
-        uiManager.showGameOver(message);
+        if (typeof uiManager !== 'undefined' && uiManager.showGameOver) {
+            uiManager.showGameOver(message);
+        }
     } else {
         const playerTeam = gameState.getPlayerTeam();
         if (!playerTeam || !playerTeam.alive || !playerTeam.monsters || playerTeam.monsters.length === 0) {
             gameState.gameActive = false;
-            uiManager.showGameOver('💀 Alle deine Monster sind eliminiert!');
+            if (typeof uiManager !== 'undefined' && uiManager.showGameOver) {
+                uiManager.showGameOver('💀 Alle deine Monster sind eliminiert!');
+            }
         }
     }
 }
