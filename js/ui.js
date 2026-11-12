@@ -133,22 +133,24 @@ class UIManager {
 
         card.innerHTML = `
             <div>
-                <div style="font-size: 3rem; margin: 10px 0;">${monsterDef.emoji}</div>
-                <div class="card-rarity rarity-${monsterData.rarity}" style="background-color: ${rarityConfig.color}">
+                <div style="font-size: 2.5rem; margin: 5px 0;">${monsterDef.emoji}</div>
+                <div class="card-rarity rarity-${monsterData.rarity}" style="background-color: ${rarityConfig.color}; font-size: 0.8rem;">
                     ${rarityConfig.icon} ${rarityConfig.name}
                 </div>
                 <div class="card-monster-name">${monsterDef.name}</div>
-                <div class="card-stats">
+                <div class="card-stats" style="font-size: 0.85rem;">
                     <div>❤️ HP: ${Math.round(monsterDef.baseStats.hp * rarityConfig.hpMultiplier)}</div>
                     <div>⚔️ Dmg: ${Math.round(monsterDef.baseStats.damage * rarityConfig.damageMultiplier)}</div>
                     <div>💨 Spd: ${(monsterDef.baseStats.speed * rarityConfig.speedMultiplier).toFixed(1)}</div>
                     <div>🎯 Rng: ${(monsterDef.baseStats.range * rarityConfig.rangeMultiplier).toFixed(1)}</div>
                 </div>
-                <p style="font-size: 0.85rem; margin-top: 10px; color: #bbb;">${monsterDef.description}</p>
+                <p style="font-size: 0.75rem; margin-top: 5px; color: #bbb;">${monsterDef.description}</p>
             </div>
         `;
 
-        card.addEventListener('click', () => {
+        // Arrow Function um 'this' richtig zu binden
+        card.addEventListener('click', (e) => {
+            e.stopPropagation();
             const playerTeam = gameState.getPlayerTeam();
             const newMonster = new Monster(monsterData.type, monsterData.rarity, playerTeam.id);
             playerTeam.monsters.push(newMonster);
@@ -158,6 +160,9 @@ class UIManager {
             gameState.unlockMonster(monsterData.type, monsterData.rarity);
             gameState.saveGameState();
 
+            console.log(`Card ${playerTeam.cardIndex}/10 ausgewählt. Monster:`, monsterDef.name);
+
+            // Nächste Karte zeigen
             this.showNextCard();
         });
 

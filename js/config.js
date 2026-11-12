@@ -81,6 +81,13 @@ const GAME_CONFIG = {
 
     // Welten
     WORLDS: {
+        normal: {
+            name: 'Normal',
+            icon: '🌳',
+            color: '#228B22',
+            advantages: [],
+            disadvantages: []
+        },
         ice: {
             name: 'Eis',
             icon: '❄️',
