@@ -13,7 +13,7 @@ const MONSTERS = {
             range: 20
         },
         sound: 'ice_dragon_attack',
-        description: 'Fliegender Drache mit Eiskräften'
+        description: 'Fliegender Drache mit Eiskräften - SELTENSTER!'
     },
     frost_golem: {
         name: 'Frost-Golem',
@@ -71,7 +71,7 @@ const MONSTERS = {
             range: 16
         },
         sound: 'fire_phoenix_attack',
-        description: 'Legendärer fliegender Phönix'
+        description: 'Legendärer fliegender Phönix - SELTENSTER!'
     },
     inferno_imp: {
         name: 'Höllen-Imp',
@@ -159,7 +159,7 @@ const MONSTERS = {
             range: 18
         },
         sound: 'storm_eagle_attack',
-        description: 'Majestetischer Sturm-Adler'
+        description: 'Majestetischer Sturm-Adler - SELTENSTER!'
     },
     cloud_bunny: {
         name: 'Wolken-Hase',
@@ -261,6 +261,9 @@ class Monster {
     }
 }
 
+// Drachen sind die seltensten Monster - nur in OG oder Legendär
+const DRAGON_MONSTERS = ['ice_dragon', 'fire_phoenix', 'storm_eagle'];
+
 // Funktion um zufällige Monster-Karte zu generieren
 function generateMonsterCard() {
     const monsterKeys = Object.keys(MONSTERS);
@@ -268,7 +271,7 @@ function generateMonsterCard() {
 
     for (let i = 0; i < 3; i++) {
         const randomMonster = monsterKeys[Math.floor(Math.random() * monsterKeys.length)];
-        const randomRarity = getRandomRarity();
+        const randomRarity = getRandomRarity(randomMonster);
         randomMonsters.push({
             type: randomMonster,
             rarity: randomRarity
@@ -279,7 +282,13 @@ function generateMonsterCard() {
 }
 
 // Zufällige Seltenheit mit Wahrscheinlichkeiten
-function getRandomRarity() {
+function getRandomRarity(monsterType) {
+    // Drachen sind nur in OG oder Legendär verfügbar
+    if (DRAGON_MONSTERS.includes(monsterType)) {
+        const random = Math.random() * 100;
+        return random < 70 ? 'legendary' : 'og';
+    }
+
     const rarities = ['common', 'rare', 'epic', 'mythic', 'legendary', 'og'];
     const weights = [40, 30, 15, 8, 5, 2]; // Prozentuale Verteilung
 
