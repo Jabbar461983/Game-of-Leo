@@ -9,8 +9,17 @@ class Simple3DScene {
         this.rotation = 0;
     }
 
-    addMonster(x, z, color) {
-        this.monsters.push({ x, z, color, size: 20 });
+    addMonster(x, z, color, emoji, monsterName, rarity) {
+        this.monsters.push({
+            x,
+            z,
+            color,
+            emoji,
+            monsterName,
+            rarity,
+            size: 25,
+            pulsate: 0
+        });
     }
 
     render() {
@@ -38,20 +47,36 @@ class Simple3DScene {
         }
 
         // Draw monsters
-        this.monsters.forEach(monster => {
+        this.monsters.forEach((monster, index) => {
             const screenX = centerX + monster.x * scale;
             const screenY = centerY + monster.z * scale;
 
-            // Draw monster as circle
-            this.ctx.fillStyle = monster.color;
+            // Draw background circle with pulsing effect
+            const pulse = Math.sin(this.rotation * 2 + index) * 3;
+            const baseSize = monster.size + pulse;
+
+            this.ctx.fillStyle = monster.color + '40'; // Semi-transparent
             this.ctx.beginPath();
-            this.ctx.arc(screenX, screenY, monster.size, 0, Math.PI * 2);
+            this.ctx.arc(screenX, screenY, baseSize, 0, Math.PI * 2);
             this.ctx.fill();
 
-            // Draw outline
-            this.ctx.strokeStyle = 'rgba(255, 255, 255, 0.5)';
-            this.ctx.lineWidth = 2;
+            // Draw colored border based on rarity
+            this.ctx.strokeStyle = monster.color;
+            this.ctx.lineWidth = 3;
+            this.ctx.beginPath();
+            this.ctx.arc(screenX, screenY, baseSize, 0, Math.PI * 2);
             this.ctx.stroke();
+
+            // Draw emoji
+            this.ctx.font = 'bold 32px Arial';
+            this.ctx.textAlign = 'center';
+            this.ctx.textBaseline = 'middle';
+            this.ctx.fillText(monster.emoji, screenX, screenY);
+
+            // Draw monster name below
+            this.ctx.font = 'bold 10px Arial';
+            this.ctx.fillStyle = 'rgba(255, 255, 255, 0.8)';
+            this.ctx.fillText(monster.monsterName, screenX, screenY + baseSize + 15);
         });
 
         // Draw center marker

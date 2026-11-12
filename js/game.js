@@ -82,7 +82,7 @@ function renderFallback3DScene() {
             const rgb = hexToRGB(rarityConfig.color);
             const color = `rgb(${rgb.r}, ${rgb.g}, ${rgb.b})`;
 
-            simple3dScene.addMonster(x, z, color);
+            simple3dScene.addMonster(x, z, color, monster.emoji, monster.name, monster.rarity);
         });
     }
 
@@ -99,7 +99,7 @@ function renderFallback3DScene() {
                 const rgb = hexToRGB(rarityConfig.color);
                 const color = `rgb(${rgb.r}, ${rgb.g}, ${rgb.b})`;
 
-                simple3dScene.addMonster(x, z, color);
+                simple3dScene.addMonster(x, z, color, monster.emoji, monster.name, monster.rarity);
             });
         }
     });
