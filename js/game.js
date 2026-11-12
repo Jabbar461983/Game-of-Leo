@@ -16,6 +16,11 @@ function initializeBabylonScene() {
     if (typeof BABYLON === 'undefined') {
         console.warn('Babylon.js nicht verfügbar, verwende Fallback 2D-Renderer');
         useFallbackRenderer = true;
+
+        // Clear the original canvas and make sure it's fresh
+        canvas.width = window.innerWidth;
+        canvas.height = window.innerHeight;
+
         simple3dScene = new Simple3DScene('renderCanvas');
         renderFallback3DScene();
         return;
