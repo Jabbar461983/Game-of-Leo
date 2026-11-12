@@ -286,11 +286,11 @@ function getRandomRarity(monsterType) {
     // Drachen sind nur in OG oder Legendär verfügbar
     if (DRAGON_MONSTERS.includes(monsterType)) {
         const random = Math.random() * 100;
-        return random < 70 ? 'legendary' : 'og';
+        return random < 85 ? 'legendary' : 'og';
     }
 
     const rarities = ['common', 'rare', 'epic', 'mythic', 'legendary', 'og'];
-    const weights = [40, 30, 15, 8, 5, 2]; // Prozentuale Verteilung
+    const weights = [50, 25, 15, 6, 3, 1]; // Prozentuale Verteilung - OG sehr selten
 
     const random = Math.random() * 100;
     let cumulative = 0;

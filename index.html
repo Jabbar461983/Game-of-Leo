@@ -3,7 +3,11 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Painting Wars - Battle Royale</title>
+    <!-- CACHE BUSTER: 2025-11-12 14:30 - FINAL FIX für INITIAL_CARDS: 5 -->
+    <meta http-equiv="cache-control" content="no-cache, no-store, must-revalidate">
+    <meta http-equiv="pragma" content="no-cache">
+    <meta http-equiv="expires" content="0">
+    <title>Painting Wars - Battle Royale FIXED</title>
     <link rel="stylesheet" href="css/style.css">
     <script src="https://cdnjs.cloudflare.com/ajax/libs/babylon.js/5.0.0/babylon.min.js"></script>
 </head>
@@ -97,7 +101,7 @@
     <div id="cardSelectionScreen" class="screen">
         <div class="card-selection-container">
             <h1>Wähle dein Monster</h1>
-            <p id="cardCountDisplay">Karte 1/10</p>
+            <p id="cardCountDisplay">Karte 1/5</p>
             <div id="cardsGrid" class="cards-grid"></div>
             <div class="card-selection-buttons">
                 <button id="stopBtn" class="btn btn-primary" disabled>STOP - Spiel starten</button>
@@ -107,7 +111,7 @@
 
     <!-- Hauptspielfeld -->
     <div id="gameScreen" class="screen">
-        <canvas id="renderCanvas" style="width: 100%; height: 100%;"></canvas>
+        <canvas id="renderCanvas"></canvas>
 
         <!-- HUD -->
         <div class="hud">
@@ -172,6 +176,7 @@
     <script src="js/config.js"></script>
     <script src="js/gameState.js"></script>
     <script src="js/monsters.js"></script>
+    <script src="js/simple3d.js"></script>
     <script src="js/ui.js"></script>
     <script src="js/game.js"></script>
 </body>

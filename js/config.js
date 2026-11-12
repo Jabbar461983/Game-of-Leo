@@ -8,7 +8,7 @@ const GAME_CONFIG = {
     ARENA_SIZE: 500,
 
     // Karten
-    INITIAL_CARDS: 10,
+    INITIAL_CARDS: 5,
     CARDS_PER_SPAWN: 5,
     CARD_SPAWN_INTERVAL: 60000, // 1 Minute in ms
     MAX_CARDS_ON_MAP: 50,

@@ -160,7 +160,7 @@ class UIManager {
             gameState.unlockMonster(monsterData.type, monsterData.rarity);
             gameState.saveGameState();
 
-            console.log(`Card ${playerTeam.cardIndex}/10 ausgewählt. Monster:`, monsterDef.name);
+            console.log(`Card ${playerTeam.cardIndex}/${GAME_CONFIG.INITIAL_CARDS} ausgewählt. Monster:`, monsterDef.name);
 
             // Nächste Karte zeigen
             this.showNextCard();

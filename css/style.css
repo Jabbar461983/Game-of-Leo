@@ -306,9 +306,10 @@ body {
     justify-content: space-between;
     align-items: center;
     padding: 0 20px;
-    z-index: 50;
-    background: linear-gradient(to bottom, rgba(26, 26, 46, 0.8), transparent);
+    z-index: 200;
+    background: linear-gradient(to bottom, rgba(26, 26, 46, 0.9), rgba(26, 26, 46, 0.7), transparent);
     color: var(--text-color);
+    pointer-events: none;
 }
 
 .hud-left,
@@ -346,6 +347,7 @@ body {
 .btn-small {
     padding: 8px 16px;
     font-size: 0.9rem;
+    pointer-events: auto;
 }
 
 /* Minimap */
@@ -355,10 +357,10 @@ body {
     right: 20px;
     width: 200px;
     height: 200px;
-    background-color: rgba(22, 33, 62, 0.8);
+    background-color: rgba(22, 33, 62, 0.9);
     border: 2px solid var(--success-color);
     border-radius: 10px;
-    z-index: 50;
+    z-index: 200;
     padding: 5px;
 }
 
@@ -455,12 +457,18 @@ body {
 /* Game Screen */
 #gameScreen {
     position: relative;
+    width: 100%;
+    height: 100%;
 }
 
 #renderCanvas {
     display: block;
-    width: 100% !important;
-    height: 100% !important;
+    width: 100%;
+    height: 100%;
+    position: absolute;
+    top: 0;
+    left: 0;
+    z-index: 10;
 }
 
 /* Animations */
