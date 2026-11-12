@@ -138,9 +138,20 @@ class GameState {
         this.teams.push(playerTeam);
         this.playerTeamId = 0;
 
-        // KI Teams
+        // KI Teams - geben sie auch zufällige Monster
         for (let i = 1; i < GAME_CONFIG.MAX_TEAMS; i++) {
             const aiTeam = this.createTeam(i, true, difficulty);
+
+            // Gib jedem AI-Team 2-4 zufällige Monster
+            const monsterCount = Math.floor(Math.random() * 3) + 2; // 2-4 Monster
+            for (let j = 0; j < monsterCount; j++) {
+                const monsterKeys = Object.keys(MONSTERS);
+                const randomMonsterType = monsterKeys[Math.floor(Math.random() * monsterKeys.length)];
+                const randomRarity = getRandomRarity(randomMonsterType);
+                const newMonster = new Monster(randomMonsterType, randomRarity, aiTeam.id);
+                aiTeam.monsters.push(newMonster);
+            }
+
             this.teams.push(aiTeam);
         }
     }
