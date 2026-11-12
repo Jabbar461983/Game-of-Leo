@@ -1,0 +1,177 @@
+<!DOCTYPE html>
+<html lang="de">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Painting Wars - Battle Royale</title>
+    <link rel="stylesheet" href="css/style.css">
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/babylon.js/5.0.0/babylon.min.js"></script>
+</head>
+<body>
+    <!-- Hauptmenü -->
+    <div id="mainMenu" class="screen active">
+        <div class="menu-container">
+            <h1 class="game-title">🎨 Painting Wars 🎨</h1>
+            <p class="tagline">Battle Royale mit gemalten Monstern</p>
+
+            <div class="menu-section">
+                <h2>Schwierigkeit wählen</h2>
+                <div class="difficulty-buttons">
+                    <button class="btn difficulty-btn" data-difficulty="easy">🟢 Einfach</button>
+                    <button class="btn difficulty-btn" data-difficulty="normal">🟡 Normal</button>
+                    <button class="btn difficulty-btn" data-difficulty="hard">🔴 Schwer</button>
+                    <button class="btn difficulty-btn" data-difficulty="insane">💀 Wahnsinn</button>
+                </div>
+            </div>
+
+            <div class="menu-section">
+                <h2>Welt wählen</h2>
+                <div class="world-buttons">
+                    <button class="btn world-btn" data-world="ice">❄️ Eis</button>
+                    <button class="btn world-btn" data-world="fire">🔥 Feuer</button>
+                    <button class="btn world-btn" data-world="water">💧 Wasser</button>
+                    <button class="btn world-btn" data-world="air">💨 Luft</button>
+                </div>
+            </div>
+
+            <button id="startBtn" class="btn btn-large btn-primary">ZUM SPIELEN</button>
+            <button id="tutorialBtn" class="btn btn-secondary">📚 Tutorial</button>
+        </div>
+    </div>
+
+    <!-- Tutorial -->
+    <div id="tutorialScreen" class="screen">
+        <div class="tutorial-container">
+            <h1>📚 Wie man spielt</h1>
+            <div class="tutorial-content">
+                <div class="tutorial-section">
+                    <h2>🎯 Ziel</h2>
+                    <p>Sei das letzte überlebende Team! Du kämpfst gegen 9 andere Teams in einer großen Arena.</p>
+                </div>
+
+                <div class="tutorial-section">
+                    <h2>🃏 Karten & Monster</h2>
+                    <p>Am Anfang bekommst du 10 Karten mit je 3 Monstern. Wähle 1 Monster pro Karte.</p>
+                    <p>Weitere Karten spawnen auf der Map - sammle sie um mehr Monster zu bekommen!</p>
+                </div>
+
+                <div class="tutorial-section">
+                    <h2>⭐ Seltenheiten</h2>
+                    <p>Häufig &lt; Selten &lt; Episch &lt; Mythisch &lt; Legendär &lt; OG</p>
+                    <p>Höhere Seltenheit = mehr HP, Schaden, Speed, Reichweite</p>
+                </div>
+
+                <div class="tutorial-section">
+                    <h2>🎮 Kontrollen</h2>
+                    <p><strong>Klick auf Boden:</strong> Monster gehen dorthin</p>
+                    <p><strong>Klick auf gegnerisches Team:</strong> Monster greifen an</p>
+                    <p><strong>Minimap (oben rechts):</strong> Blau = du, Rot = Gegner</p>
+                </div>
+
+                <div class="tutorial-section">
+                    <h2>💎 OG-Monster</h2>
+                    <p>Die seltensten Monster mit kosmischer Animation!</p>
+                    <p>Fähigkeit lädt sich auf wenn es Gegner trifft → AOE + Boulder-Schuss</p>
+                </div>
+            </div>
+            <button id="backFromTutorial" class="btn btn-primary">Zurück</button>
+        </div>
+    </div>
+
+    <!-- Lobby -->
+    <div id="lobbyScreen" class="screen">
+        <div class="lobby-container">
+            <h1>🎮 Lobby</h1>
+            <div class="lobby-info">
+                <p><strong>Lobby-Code:</strong> <span id="lobbyCode">-</span></p>
+                <p><strong>Teams bereit:</strong> <span id="teamsReady">0/10</span></p>
+            </div>
+            <div id="playersList" class="players-list"></div>
+            <button id="copyCodeBtn" class="btn btn-secondary">Code kopieren</button>
+            <button id="leaveBtn" class="btn btn-secondary">Zurück</button>
+        </div>
+    </div>
+
+    <!-- Kartenwahl -->
+    <div id="cardSelectionScreen" class="screen">
+        <div class="card-selection-container">
+            <h1>Wähle dein Monster</h1>
+            <p id="cardCountDisplay">Karte 1/10</p>
+            <div id="cardsGrid" class="cards-grid"></div>
+            <div class="card-selection-buttons">
+                <button id="stopBtn" class="btn btn-primary" disabled>STOP - Spiel starten</button>
+            </div>
+        </div>
+    </div>
+
+    <!-- Hauptspielfeld -->
+    <div id="gameScreen" class="screen">
+        <canvas id="renderCanvas" style="width: 100%; height: 100%;"></canvas>
+
+        <!-- HUD -->
+        <div class="hud">
+            <div class="hud-left">
+                <div class="hud-item">
+                    <span class="label">🎯 Deine Team:</span>
+                    <span id="teamHealth" class="value">100%</span>
+                </div>
+                <div class="hud-item">
+                    <span class="label">⚔️ Monster:</span>
+                    <span id="monsterCount" class="value">0</span>
+                </div>
+            </div>
+
+            <div class="hud-center">
+                <h2 id="worldName">Eis-Welt</h2>
+            </div>
+
+            <div class="hud-right">
+                <div class="hud-item">
+                    <span class="label">👥 Teams aktiv:</span>
+                    <span id="teamsAlive" class="value">10</span>
+                </div>
+                <button id="pauseBtn" class="btn btn-small">⏸ Pause</button>
+            </div>
+        </div>
+
+        <!-- Minimap -->
+        <div class="minimap">
+            <canvas id="minimapCanvas" width="200" height="200"></canvas>
+        </div>
+    </div>
+
+    <!-- Pause Menu -->
+    <div id="pauseMenu" class="modal hidden">
+        <div class="modal-content">
+            <h2>⏸ PAUSIERT</h2>
+            <button id="resumeBtn" class="btn btn-primary">Fortsetzen</button>
+            <button id="mainMenuBtn" class="btn btn-secondary">Hauptmenü</button>
+        </div>
+    </div>
+
+    <!-- Game Over -->
+    <div id="gameOverMenu" class="modal hidden">
+        <div class="modal-content">
+            <h2 id="gameOverTitle">💀 Game Over</h2>
+            <p id="gameOverMessage"></p>
+            <button id="playAgainBtn" class="btn btn-primary">Nochmal spielen</button>
+            <button id="mainMenuBtn2" class="btn btn-secondary">Hauptmenü</button>
+        </div>
+    </div>
+
+    <!-- Monster Index -->
+    <div id="monsterIndexScreen" class="screen">
+        <div class="index-container">
+            <h1>📖 Monster Index</h1>
+            <div id="monsterIndexGrid" class="monster-index-grid"></div>
+            <button id="backFromIndex" class="btn btn-primary">Zurück</button>
+        </div>
+    </div>
+
+    <script src="js/config.js"></script>
+    <script src="js/gameState.js"></script>
+    <script src="js/monsters.js"></script>
+    <script src="js/ui.js"></script>
+    <script src="js/game.js"></script>
+</body>
+</html>
